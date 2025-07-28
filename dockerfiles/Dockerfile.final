@@ -5,7 +5,7 @@ FROM tools-image
 COPY --from=cmake-image /opt/cmake /opt/cmake
 COPY --from=gradle-image /opt/gradle /opt/gradle
 COPY --from=gradle-image /usr/local/bin/gradle /usr/local/bin/gradle
-COPY --from=android-image /opt/android-sdk /opt/android-sdk
+COPY --from=android-build-image /opt/android-sdk /opt/android-sdk
 
 # Declare ARGs for final interpolation
 ARG ANDROID_NDK_VERSION=27.2.12479018

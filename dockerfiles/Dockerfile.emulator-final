@@ -1,0 +1,63 @@
+# Android Emulator Final Image
+FROM android-tools-image
+
+# Declare ARGs for final interpolation
+ARG ANDROID_API_LEVEL=34
+
+# Use cache mount for SDK components (Emulator only - no build tools)
+RUN --mount=type=cache,target=/var/cache/android-sdk \
+    --mount=type=cache,target=/root/.android \
+    echo "Accepting Android SDK licenses..." && \
+    yes | sdkmanager --sdk_root=/opt/android-sdk --licenses > /dev/null 2>&1 && \
+    echo "Installing Android SDK emulator components..." && \
+    sdkmanager --sdk_root=/opt/android-sdk --verbose \
+        "platform-tools" \
+        "platforms;android-${ANDROID_API_LEVEL}" \
+        "emulator" \
+        "system-images;android-${ANDROID_API_LEVEL};google_apis;x86_64" && \
+    echo "Creating AVD..." && \
+    avdmanager create avd --name default --device "Galaxy Nexus" \
+        --package "system-images;android-${ANDROID_API_LEVEL};google_apis;x86_64" --force && \
+    echo "Android SDK emulator installation complete - cache preserved in mount"
+
+# Set environment variables
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Define PATH for emulator
+ENV PATH=$PATH:$ANDROID_HOME/emulator:$JAVA_HOME/bin
+
+# Copy entrypoint and healthcheck scripts
+COPY resources/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY resources/healthcheck.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh
+
+# Install additional packages for emulator support
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libpulse0 \
+    libnss3 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxi6 \
+    libxtst6 \
+    libxrandr2 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libatk1.0-0 \
+    libcairo-gobject2 \
+    libgtk-3-0 \
+    libgdk-pixbuf2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Healthcheck using dedicated script
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s CMD ["/usr/local/bin/healthcheck.sh"]
+
+# Create non-root user
+USER root
+RUN useradd -m -s /bin/bash vscode && \
+    usermod -aG sudo vscode && \
+    echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER vscode
+WORKDIR /home/vscode
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

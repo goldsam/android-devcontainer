@@ -14,4 +14,3 @@ RUN --mount=type=cache,target=/var/cache/gradle \
     mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && \
     ln -s /opt/gradle/bin/gradle /usr/local/bin/gradle
 
-ENV PATH=/opt/gradle/bin:$PATH

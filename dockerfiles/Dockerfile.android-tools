@@ -1,0 +1,29 @@
+# Android Command Line Tools stage (Common Base)
+FROM java-image
+ARG ANDROID_CMDLINE_TOOLS_VERSION=13114758
+
+ENV PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$PATH
+
+# Use cache mount for Android command line tools
+RUN --mount=type=cache,target=/var/cache/android \
+    mkdir -p /opt/android-sdk/cmdline-tools && \
+    TOOLS_FILE="/var/cache/android/commandlinetools-linux-${ANDROID_CMDLINE_TOOLS_VERSION}_latest.zip" && \
+    if [ ! -f "$TOOLS_FILE" ] || ! unzip -t "$TOOLS_FILE" >/dev/null 2>&1; then \
+        echo "Downloading Android command line tools..." && \
+        rm -f "$TOOLS_FILE" && \
+        curl -fsSL -o "$TOOLS_FILE" \
+            "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_CMDLINE_TOOLS_VERSION}_latest.zip" && \
+        echo "Verifying downloaded file..." && \
+        unzip -t "$TOOLS_FILE"; \
+    else \
+        echo "Using cached Android command line tools..."; \
+    fi && \
+    echo "Extracting Android command line tools..." && \
+    unzip -q "$TOOLS_FILE" -d /opt/android-sdk/cmdline-tools && \
+    mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest && \
+    echo "Android command line tools installation complete"
+
+# Set up common Android environment
+ENV ANDROID_HOME=/opt/android-sdk
+ENV ANDROID_SDK_ROOT=/opt/android-sdk
+ENV ANDROID_USER_HOME=/root/.android

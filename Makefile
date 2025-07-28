@@ -33,6 +33,18 @@ fast: ## Build fast version (without Android SDK) for quick iteration
 build-all: ## Build all targets
 	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) all
 
+build-final: ## Build both final images (build tools + emulator)
+	@mkdir -p $(CACHE_PATH)
+	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) final-images
+
+build-final-dev: ## Build both final images with local cache
+	@mkdir -p $(CACHE_PATH)
+	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) dev-images
+
+build-emulator: ## Build the emulator container
+	@mkdir -p $(CACHE_PATH)
+	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) android-emulator
+
 build-github: ## Build with GitHub Actions cache (for testing locally)
 	docker buildx bake github-actions
 
@@ -50,6 +62,9 @@ test-dev: ## Test the development container
 test-fast: ## Test the fast build container
 	docker run --rm android-devcontainer:fast java -version && \
 	docker run --rm android-devcontainer:fast which git
+
+test-emulator: ## Test the emulator container
+	docker run --rm android-devcontainer:android-emulator /usr/local/bin/healthcheck.sh
 
 shell: ## Run an interactive shell in the container
 	docker run -it --rm android-devcontainer:$(TAG) bash

@@ -10,5 +10,3 @@ RUN --mount=type=cache,target=/var/cache/cmake \
     fi && \
     mkdir -p /opt/cmake && \
     tar --strip-components=1 -xzf /var/cache/cmake/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz -C /opt/cmake
-
-ENV PATH=/opt/cmake/bin:$PATH
