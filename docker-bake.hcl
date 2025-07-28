@@ -38,6 +38,10 @@ variable "TAG" {
   default = "latest"
 }
 
+variable "CACHE_PATH" {
+  default = ".buildx-cache"
+}
+
 # Groups
 group "default" {
   targets = ["android-devcontainer"]
@@ -147,10 +151,10 @@ target "android-devcontainer" {
 target "dev" {
   inherits = ["android-devcontainer"]
   cache-from = [
-    "type=local,src=/tmp/.buildx-cache"
+    "type=local,src=${CACHE_PATH}"
   ]
   cache-to = [
-    "type=local,dest=/tmp/.buildx-cache,mode=max"
+    "type=local,dest=${CACHE_PATH},mode=max"
   ]
   tags = ["android-devcontainer:dev"]
 }
@@ -171,9 +175,9 @@ target "fast" {
   inherits = ["tools"]
   tags = ["android-devcontainer:fast"]
   cache-from = [
-    "type=local,src=/tmp/.buildx-cache"
+    "type=local,src=${CACHE_PATH}"
   ]
   cache-to = [
-    "type=local,dest=/tmp/.buildx-cache,mode=max"
+    "type=local,dest=${CACHE_PATH},mode=max"
   ]
 }

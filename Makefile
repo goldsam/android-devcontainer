@@ -3,8 +3,10 @@
 # Variables
 TAG ?= latest
 REGISTRY ?= 
-CACHE_DIR ?= /tmp/.buildx-cache
-BUILDX_FLAGS ?= --allow=fs=$(CACHE_DIR)
+CACHE_DIR ?= .buildx-cache
+MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+CACHE_PATH := $(MAKEFILE_DIR)$(CACHE_DIR)
+BUILDX_FLAGS ?= --allow=fs=$(CACHE_PATH)
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -12,17 +14,24 @@ help: ## Show this help message
 	@echo 'Targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
+debug-cache: ## Show cache path for debugging
+	@echo "MAKEFILE_DIR: $(MAKEFILE_DIR)"
+	@echo "CACHE_DIR: $(CACHE_DIR)"
+	@echo "BUILDX_FLAGS: $(BUILDX_FLAGS)"
+
 build: ## Build the final Android development container
 	docker buildx bake android-devcontainer
 
 build-dev: ## Build with local cache for development
-	docker buildx bake $(BUILDX_FLAGS) dev
+	@mkdir -p $(CACHE_PATH)
+	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) dev
 
 fast: ## Build fast version (without Android SDK) for quick iteration
-	docker buildx bake $(BUILDX_FLAGS) fast
+	@mkdir -p $(CACHE_PATH)
+	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) fast
 
 build-all: ## Build all targets
-	docker buildx bake $(BUILDX_FLAGS) all
+	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) all
 
 build-github: ## Build with GitHub Actions cache (for testing locally)
 	docker buildx bake github-actions

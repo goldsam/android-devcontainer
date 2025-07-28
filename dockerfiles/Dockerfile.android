@@ -19,16 +19,18 @@ RUN --mount=type=cache,target=/var/cache/android \
     unzip /var/cache/android/commandlinetools-linux-${ANDROID_CMDLINE_TOOLS_VERSION}_latest.zip -d /opt/android-sdk/cmdline-tools && \
     mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
 
-# Use cache mount for SDK components
-RUN --mount=type=cache,target=/opt/android-sdk-cache \
+# Use cache mount for SDK components with proper cache directory
+RUN --mount=type=cache,target=/var/cache/android-sdk \
     --mount=type=cache,target=/root/.android \
     export ANDROID_HOME=/opt/android-sdk && \
-    yes | sdkmanager --sdk_root=/opt/android-sdk --licenses && \
-    # Check if components are already in cache and copy them if available
-    if [ -d /opt/android-sdk-cache/platform-tools ]; then \
-        cp -r /opt/android-sdk-cache/* /opt/android-sdk/ 2>/dev/null || true; \
-    fi && \
-    sdkmanager --sdk_root=/opt/android-sdk \
+    # Set Android SDK cache directory to our cache mount
+    export ANDROID_SDK_ROOT=/opt/android-sdk && \
+    export ANDROID_USER_HOME=/root/.android && \
+    echo "Accepting Android SDK licenses..." && \
+    yes | sdkmanager --sdk_root=/opt/android-sdk --licenses > /dev/null 2>&1 && \
+    echo "Installing Android SDK components..." && \
+    # The SDK manager will cache downloaded packages in its own cache
+    sdkmanager --sdk_root=/opt/android-sdk --verbose \
         "platform-tools" \
         "platforms;android-${ANDROID_API_LEVEL}" \
         "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
@@ -36,7 +38,7 @@ RUN --mount=type=cache,target=/opt/android-sdk-cache \
         "cmake;3.22.1" \
         "emulator" \
         "system-images;android-${ANDROID_API_LEVEL};google_apis;x86_64" && \
-    # Cache the downloaded components
-    cp -r /opt/android-sdk/* /opt/android-sdk-cache/ 2>/dev/null || true && \
+    echo "Creating AVD..." && \
     avdmanager create avd --name default --device "Galaxy Nexus" \
-        --package "system-images;android-${ANDROID_API_LEVEL};google_apis;x86_64" --force
+        --package "system-images;android-${ANDROID_API_LEVEL};google_apis;x86_64" --force && \
+    echo "Android SDK installation complete - cache preserved in mount"
