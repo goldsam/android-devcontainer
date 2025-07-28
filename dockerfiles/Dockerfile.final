@@ -1,0 +1,40 @@
+# Final stage
+FROM tools-image
+
+# Copy built artifacts from other images
+COPY --from=cmake-image /opt/cmake /opt/cmake
+COPY --from=gradle-image /opt/gradle /opt/gradle
+COPY --from=gradle-image /usr/local/bin/gradle /usr/local/bin/gradle
+COPY --from=android-image /opt/android-sdk /opt/android-sdk
+
+# Declare ARGs for final interpolation
+ARG ANDROID_NDK_VERSION=27.2.12479018
+ARG ANDROID_BUILD_TOOLS_VERSION=34.0.0
+
+# Set environment variables
+ENV CMAKE_HOME=/opt/cmake
+ENV GRADLE_HOME=/opt/gradle
+ENV ANDROID_HOME=/opt/android-sdk
+ENV ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Define PATH with previously declared envs
+ENV PATH=$PATH:$CMAKE_HOME/bin:$GRADLE_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/${ANDROID_BUILD_TOOLS_VERSION}:$ANDROID_NDK_HOME:$JAVA_HOME/bin
+
+# Copy entrypoint and healthcheck scripts
+COPY resources/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY resources/healthcheck.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh
+
+# Healthcheck using dedicated script
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s CMD ["/usr/local/bin/healthcheck.sh"]
+
+# Create non-root user
+USER root
+RUN useradd -m -s /bin/bash vscode && \
+    usermod -aG sudo vscode && \
+    echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER vscode
+WORKDIR /home/vscode
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

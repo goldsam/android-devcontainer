@@ -1,0 +1,20 @@
+# Tools stage
+FROM java-image
+ARG KOTLIN_LSP_VERSION=0.252.17811
+
+ENV CODE_EXTENSIONS_DIR=/usr/local/share/vscode-extensions \
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    PATH=$PATH:$JAVA_HOME/bin
+
+RUN apt-get update && apt-get install -y \
+    git git-lfs ninja-build ccache build-essential pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Optional Kotlin LSP download with cache mount
+# RUN --mount=type=cache,target=/var/cache/kotlin \
+#     mkdir -p ${CODE_EXTENSIONS_DIR} && \
+#     if [ ! -f /var/cache/kotlin/kotlin-${KOTLIN_LSP_VERSION}.vsix ]; then \
+#         curl -fsSL -o /var/cache/kotlin/kotlin-${KOTLIN_LSP_VERSION}.vsix \
+#             https://download-cdn.jetbrains.com/kotlin-lsp/${KOTLIN_LSP_VERSION}/kotlin-${KOTLIN_LSP_VERSION}.vsix; \
+#     fi && \
+#     cp /var/cache/kotlin/kotlin-${KOTLIN_LSP_VERSION}.vsix ${CODE_EXTENSIONS_DIR}/kotlin.vsix
