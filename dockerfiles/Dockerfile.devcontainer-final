@@ -1,20 +1,37 @@
 # Final stage
 FROM tools-image
 
+# Declare ARGs for Android SDK installation
+ARG ANDROID_CMDLINE_TOOLS_VERSION=13114758
+ARG ANDROID_NDK_VERSION=27.2.12479018
+ARG ANDROID_API_LEVEL=34
+ARG ANDROID_BUILD_TOOLS_VERSION=34.0.0
+
 # Copy built artifacts from other images
 COPY --from=cmake-image /opt/cmake /opt/cmake
 COPY --from=gradle-image /opt/gradle /opt/gradle
 COPY --from=gradle-image /usr/local/bin/gradle /usr/local/bin/gradle
-COPY --from=android-build-image /opt/android-sdk /opt/android-sdk
+COPY --from=android-tools-image /opt/android-sdk /opt/android-sdk
 
-# Declare ARGs for final interpolation
-ARG ANDROID_NDK_VERSION=27.2.12479018
-ARG ANDROID_BUILD_TOOLS_VERSION=34.0.0
+# Install Android SDK directly in this stage
+# Set up Android environment first
+ENV ANDROID_HOME=/opt/android-sdk
+ENV ANDROID_SDK_ROOT=/opt/android-sdk
+ENV ANDROID_USER_HOME=/root/.android
+
+# Use cache mount for SDK components (Build tools only - no emulator)
+RUN --mount=type=cache,target=/var/cache/android-sdk \
+    --mount=type=cache,target=/root/.android \
+    echo "Installing Android SDK build components..." && \
+    /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android-sdk --verbose \
+        "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
+        "ndk;${ANDROID_NDK_VERSION}" \
+        "cmake;3.22.1" && \
+    echo "Android SDK build tools installation complete - cache preserved in mount"
 
 # Set environment variables
 ENV CMAKE_HOME=/opt/cmake
 ENV GRADLE_HOME=/opt/gradle
-ENV ANDROID_HOME=/opt/android-sdk
 ENV ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 

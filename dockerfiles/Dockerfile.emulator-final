@@ -7,12 +7,8 @@ ARG ANDROID_API_LEVEL=34
 # Use cache mount for SDK components (Emulator only - no build tools)
 RUN --mount=type=cache,target=/var/cache/android-sdk \
     --mount=type=cache,target=/root/.android \
-    echo "Accepting Android SDK licenses..." && \
-    yes | sdkmanager --sdk_root=/opt/android-sdk --licenses > /dev/null 2>&1 && \
     echo "Installing Android SDK emulator components..." && \
     sdkmanager --sdk_root=/opt/android-sdk --verbose \
-        "platform-tools" \
-        "platforms;android-${ANDROID_API_LEVEL}" \
         "emulator" \
         "system-images;android-${ANDROID_API_LEVEL};google_apis;x86_64" && \
     echo "Creating AVD..." && \

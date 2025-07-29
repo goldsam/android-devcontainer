@@ -48,7 +48,7 @@ group "default" {
 }
 
 group "all" {
-  targets = ["base", "java", "cmake", "gradle", "tools", "android-tools", "android-sdk-build", "android-devcontainer", "android-emulator"]
+  targets = ["base", "java", "cmake", "gradle", "tools", "android-tools", "android-devcontainer", "android-emulator"]
 }
 
 group "final-images" {
@@ -140,39 +140,26 @@ target "android-tools" {
   }
   args = {
     ANDROID_CMDLINE_TOOLS_VERSION = ANDROID_CMDLINE_TOOLS_VERSION
+    ANDROID_API_LEVEL = ANDROID_API_LEVEL
   }
   tags = ["android-devcontainer:android-tools"]
-  platforms = ["linux/amd64"]
-}
-
-# Android SDK Build target (no emulator)
-target "android-sdk-build" {
-  context = "."
-  dockerfile = "dockerfiles/Dockerfile.android-build"
-  contexts = {
-    android-tools-image = "target:android-tools"
-  }
-  args = {
-    ANDROID_NDK_VERSION = ANDROID_NDK_VERSION
-    ANDROID_API_LEVEL = ANDROID_API_LEVEL
-    ANDROID_BUILD_TOOLS_VERSION = ANDROID_BUILD_TOOLS_VERSION
-  }
-  tags = ["android-devcontainer:android-sdk-build"]
   platforms = ["linux/amd64"]
 }
 
 # Final Android development container (Build Tools)
 target "android-devcontainer" {
   context = "."
-  dockerfile = "dockerfiles/Dockerfile.final"
+  dockerfile = "dockerfiles/Dockerfile.devcontainer-final"
   contexts = {
     tools-image = "target:tools"
     cmake-image = "target:cmake"
     gradle-image = "target:gradle"
-    android-build-image = "target:android-sdk-build"
+    android-tools-image = "target:android-tools"
   }
   args = {
+    ANDROID_CMDLINE_TOOLS_VERSION = ANDROID_CMDLINE_TOOLS_VERSION
     ANDROID_NDK_VERSION = ANDROID_NDK_VERSION
+    ANDROID_API_LEVEL = ANDROID_API_LEVEL
     ANDROID_BUILD_TOOLS_VERSION = ANDROID_BUILD_TOOLS_VERSION
   }
   tags = ["android-devcontainer:${TAG}"]

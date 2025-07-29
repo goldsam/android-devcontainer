@@ -14,10 +14,10 @@ help: ## Show this help message
 	@echo 'Targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-debug-cache: ## Show cache path for debugging
-	@echo "MAKEFILE_DIR: $(MAKEFILE_DIR)"
-	@echo "CACHE_DIR: $(CACHE_DIR)"
-	@echo "BUILDX_FLAGS: $(BUILDX_FLAGS)"
+# debug-cache: ## Show cache path for debugging
+# 	@echo "MAKEFILE_DIR: $(MAKEFILE_DIR)"
+# 	@echo "CACHE_DIR: $(CACHE_DIR)"
+# 	@echo "BUILDX_FLAGS: $(BUILDX_FLAGS)"
 
 build: ## Build the final Android development container
 	docker buildx bake android-devcontainer
@@ -33,7 +33,7 @@ fast: ## Build fast version (without Android SDK) for quick iteration
 build-all: ## Build all targets
 	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) all
 
-build-final: ## Build both final images (build tools + emulator)
+build-final: ## Build both final images (devcontainer + emulator)
 	@mkdir -p $(CACHE_PATH)
 	CACHE_PATH=$(CACHE_PATH) docker buildx bake $(BUILDX_FLAGS) final-images
 

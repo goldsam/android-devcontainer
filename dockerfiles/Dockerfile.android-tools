@@ -1,6 +1,7 @@
 # Android Command Line Tools stage (Common Base)
 FROM java-image
 ARG ANDROID_CMDLINE_TOOLS_VERSION=13114758
+ARG ANDROID_API_LEVEL=34
 
 ENV PATH=/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:$PATH
 
@@ -27,3 +28,14 @@ RUN --mount=type=cache,target=/var/cache/android \
 ENV ANDROID_HOME=/opt/android-sdk
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV ANDROID_USER_HOME=/root/.android
+
+# Use cache mount for common SDK components (platform-tools and platforms)
+RUN --mount=type=cache,target=/var/cache/android-sdk \
+    --mount=type=cache,target=/root/.android \
+    echo "Accepting Android SDK licenses..." && \
+    yes | sdkmanager --sdk_root=/opt/android-sdk --licenses > /dev/null 2>&1 && \
+    echo "Installing common Android SDK components..." && \
+    sdkmanager --sdk_root=/opt/android-sdk --verbose \
+        "platform-tools" \
+        "platforms;android-${ANDROID_API_LEVEL}" && \
+    echo "Common Android SDK components installation complete - cache preserved in mount"
