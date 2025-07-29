@@ -33,8 +33,11 @@ jobs:
             ./docker-bake.gha.hcl
           push: ${{ github.event_name != 'pull_request' }}
           set: |
-            TAG=${{ github.ref_name }}
-            REGISTRY=ghcr.io/${{ github.repository_owner }}/
+            *.platform=linux/amd64
+            android-devcontainer.output=type=registry
+            android-emulator.output=type=registry
+            *.args.REGISTRY=ghcr.io/${{ github.repository_owner }}
+            *.args.TAG=${{ github.ref_name }}
 
       # - name: Test container
       #   run: |
