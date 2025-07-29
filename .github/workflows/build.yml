@@ -37,7 +37,7 @@ jobs:
             android-devcontainer.output=type=registry
             android-emulator.output=type=registry
         env:
-          REGISTRY: ghcr.io/${{ github.repository_owner }}
+          REGISTRY: ghcr.io/${{ github.repository_owner }}/
           TAG: ${{ github.ref_name }}
             
       # - name: Test container
