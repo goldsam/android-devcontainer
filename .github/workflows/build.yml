@@ -36,9 +36,10 @@ jobs:
             *.platform=linux/amd64
             android-devcontainer.output=type=registry
             android-emulator.output=type=registry
-            *.args.REGISTRY=ghcr.io/${{ github.repository_owner }}
-            *.args.TAG=${{ github.ref_name }}
-
+          env:
+            REGISTRY: ghcr.io/${{ github.repository_owner }}
+            TAG: ${{ github.ref_name }}
+            
       # - name: Test container
       #   run: |
       #     docker run --rm android-devcontainer:${{ github.ref_name }} /usr/local/bin/healthcheck.sh
