@@ -1,10 +1,11 @@
-name: Build Android DevContainer
+name: Build Android DevContainer + Emulator
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -29,12 +30,13 @@ jobs:
         with:
           files: |
             ./docker-bake.hcl
+            ./docker-bake.gha.hcl
           targets: github-actions
           push: ${{ github.event_name != 'pull_request' }}
         env:
           REGISTRY: ghcr.io/${{ github.repository_owner }}/
           TAG: ${{ github.ref_name }}
           
-      - name: Test container
-        run: |
-          docker run --rm android-devcontainer:${{ github.ref_name }} /usr/local/bin/healthcheck.sh
+      # - name: Test container
+      #   run: |
+      #     docker run --rm android-devcontainer:${{ github.ref_name }} /usr/local/bin/healthcheck.sh

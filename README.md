@@ -1,6 +1,6 @@
 # Android Development Container
 
-This project provides a comprehensive Android development environment using Docker with optimized caching for faster builds and efficient CI/CD pipelines.
+This project provides a comprehensive Android development environment in a devcontainer.
 
 ## Features
 
@@ -24,14 +24,11 @@ This project provides a comprehensive Android development environment using Dock
 ### Building Locally
 
 ```bash
-# Build the development container with local cache
-make build-dev
-
-# Build all components
-make build-all
+# Build the development containers with local cache
+make build
 
 # Test the built container
-make test-dev
+make test
 ```
 
 ### Using with GitHub Actions
@@ -48,7 +45,8 @@ The build system is split into modular components:
 4. **gradle** - Gradle build tool
 5. **tools** - Development tools (git, ninja, ccache, etc.)
 6. **android-sdk** - Android SDK and NDK
-7. **android-devcontainer** - Final assembled container
+7. **android-devcontainer** - Final assembled devcontainer image
+8. **android-emulator** - Final assembled emulator image
 
 ## Build Configuration
 

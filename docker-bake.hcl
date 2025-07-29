@@ -147,7 +147,7 @@ target "android-emulator" {
   args = {
     ANDROID_API_LEVEL = ANDROID_API_LEVEL
   }
-  tags = ["android-devcontainer:android-emulator"]
+  tags = ["android-emulator:${TAG}"]
   platforms = ["linux/amd64"]
   cache-from = "${cache-from}"
   cache-to = "${cache-to}"

@@ -38,10 +38,11 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 # Define PATH with previously declared envs
 ENV PATH=$PATH:$CMAKE_HOME/bin:$GRADLE_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/${ANDROID_BUILD_TOOLS_VERSION}:$ANDROID_NDK_HOME:$JAVA_HOME/bin
 
-# Copy entrypoint and healthcheck scripts
+# Copy entrypoint, healthcheck, and ADB connection scripts
 COPY resources/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY resources/healthcheck.sh /usr/local/bin/healthcheck.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh
+COPY resources/connect-adb.sh /usr/local/bin/connect-adb.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/local/bin/connect-adb.sh
 
 # Healthcheck using dedicated script
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s CMD ["/usr/local/bin/healthcheck.sh"]
