@@ -26,16 +26,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/bake-action@v4
+        uses: docker/bake-action@v6
         with:
           files: |
             ./docker-bake.hcl
             ./docker-bake.gha.hcl
           push: ${{ github.event_name != 'pull_request' }}
-        env:
-          REGISTRY: ghcr.io/${{ github.repository_owner }}/
-          TAG: ${{ github.ref_name }}
-          
+          set: |
+            TAG: ${{ github.ref_name }}
+            REGISTRY=ghcr.io/${{ github.repository_owner }}/
+
       # - name: Test container
       #   run: |
       #     docker run --rm android-devcontainer:${{ github.ref_name }} /usr/local/bin/healthcheck.sh

@@ -132,7 +132,7 @@ target "android-devcontainer" {
     ANDROID_API_LEVEL = ANDROID_API_LEVEL
     ANDROID_BUILD_TOOLS_VERSION = ANDROID_BUILD_TOOLS_VERSION
   }
-  tags = ["android-devcontainer:${TAG}"]
+  tags = ["${REGISTRY}android-devcontainer:${TAG}"]
   platforms = ["linux/amd64"]
   cache-from = "${cache-from}"
   cache-to = "${cache-to}"
@@ -147,7 +147,7 @@ target "android-emulator" {
   args = {
     ANDROID_API_LEVEL = ANDROID_API_LEVEL
   }
-  tags = ["android-emulator:${TAG}"]
+  tags = ["${REGISTRY}android-emulator:${TAG}"]
   platforms = ["linux/amd64"]
   cache-from = "${cache-from}"
   cache-to = "${cache-to}"
